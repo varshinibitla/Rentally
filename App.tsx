@@ -26,13 +26,7 @@ import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import LenderHome from './lendercomponents/LenderHome';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBvKJwcVfiV4TZJR_gLUTALF5AlAUwiTfI",
-  authDomain: "rentally-eb5cd.firebaseapp.com",
-  projectId: "rentally-eb5cd",
-  storageBucket: "rentally-eb5cd.firebasestorage.app",
-  messagingSenderId: "719041880495",
-  appId: "1:719041880495:web:9c5e01faf80047a39ecf5a",
-  measurementId: "G-G6D4QRB2CD"
+  
 };
 
 const app = initializeApp(firebaseConfig);
