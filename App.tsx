@@ -23,9 +23,16 @@ import {
 } from "@firebase/auth";
 import { getDatabase, ref, get, child, set, onValue } from "@firebase/database";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
+import LenderHome from './lendercomponents/LenderHome';
 
 const firebaseConfig = {
-    // Add Firebase Configuration
+  apiKey: "AIzaSyBvKJwcVfiV4TZJR_gLUTALF5AlAUwiTfI",
+  authDomain: "rentally-eb5cd.firebaseapp.com",
+  projectId: "rentally-eb5cd",
+  storageBucket: "rentally-eb5cd.firebasestorage.app",
+  messagingSenderId: "719041880495",
+  appId: "1:719041880495:web:9c5e01faf80047a39ecf5a",
+  measurementId: "G-G6D4QRB2CD"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -105,6 +112,7 @@ function SignIn({ navigation }) {
   const handleSignIn = async () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
+        navigation.navigate("LenderHome");
         Alert.alert("Sign In Successful");
       })
       .catch((error) => {
@@ -156,6 +164,7 @@ function App() {
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="SignIn" component={SignIn} />
+        <Stack.Screen name="LenderHome" component={LenderHome} />
       </Stack.Navigator>
     </NavigationContainer>
   );
