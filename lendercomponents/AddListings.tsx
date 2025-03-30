@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Image, Alert, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Alert, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { getDatabase, ref, set, push } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from '@firebase/storage';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const AddListings = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -13,11 +13,12 @@ const AddListings = () => {
   const [rentalDuration, setRentalDuration] = useState('');
 
   const auth = getAuth();
+  const db = getDatabase();
 
   const pickImage = () => {
     const options = {
       mediaType: 'photo',
-      includeBase64: false,
+      includeBase64: true,
     };
 
     launchImageLibrary(options, (response) => {
@@ -26,20 +27,9 @@ const AddListings = () => {
       } else if (response.error) {
         console.log('ImagePicker Error: ', response.error);
       } else if (response.assets) {
-        setImage(response.assets[0].uri);
+        setImage(response.assets[0].base64);
       }
     });
-  };
-
-  const uploadImage = async (uri: string) => {
-    const storage = getStorage();
-    const response = await fetch(uri);
-    const blob = await response.blob();
-    const imageRef = storageRef(storage, `images/${Date.now()}.jpg`); // Create a unique reference
-
-    await uploadBytes(imageRef, blob); // Upload the image
-    const downloadURL = await getDownloadURL(imageRef); // Get the download URL
-    return downloadURL; // Return the download URL
   };
 
   const handleAddListing = async () => {
@@ -48,29 +38,25 @@ const AddListings = () => {
       return;
     }
 
-    const user = auth.currentUser; // Get the current user
-    const userEmail = user ? user.email : null; // Get the user's email
+    const user = auth.currentUser;
+    const userEmail = user ? user.email : null;
 
     try {
-      const imageUrl = await uploadImage(image); // Upload the image and get the URL
-
-      const db = getDatabase();
-      const listingsRef = ref(db, 'listings'); // Reference to the listings node
-      const newListingRef = push(listingsRef); // Use push to create a new reference
+      const listingsRef = ref(db, 'listings');
+      const newListingRef = push(listingsRef);
 
       const listingData = {
         itemName,
         description,
         price,
         rentalDuration,
-        image: imageUrl, // Use the uploaded image URL
-        userEmail, // Include the user's email
+        image,
+        userEmail,
       };
 
-      await set(newListingRef, listingData); // Upload the listing data
+      await set(newListingRef, listingData);
       console.log('Listing added:', listingData);
       
-      // Reset fields after adding
       setImage(null);
       setItemName('');
       setDescription('');
@@ -79,7 +65,7 @@ const AddListings = () => {
       Alert.alert('Success', 'Listing added successfully!');
     } catch (error) {
       console.error('Error adding listing:', error);
-      Alert.alert('Error', 'Could not add listing. Please try again.');
+      Alert.alert('Error', `Could not add listing: ${error.message}`);
     }
   };
 
@@ -89,7 +75,12 @@ const AddListings = () => {
       <TouchableOpacity style={styles.button} onPress={pickImage}>
         <Text style={styles.buttonText}>Pick an Image</Text>
       </TouchableOpacity>
-      {image && <Image source={{ uri: image }} style={styles.image} />}
+      {image && (
+        <Image
+          source={{ uri: `data:image/jpeg;base64,${image}` }}
+          style={styles.image}
+        />
+      )}
       
       <View style={styles.inputContainer}>
         <Text style={styles.label}>Item Name:</Text>

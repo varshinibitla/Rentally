@@ -1,42 +1,35 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import YourListings from './YourListings';
 import AddListings from './AddListings';
 import Settings from './Settings';
+import EditListing from './EditListing';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-const LenderHome = ({ navigation }) => {
+const TabNavigator = () => {
   return (
-    <View style={styles.container}>
-      
-      
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false, // Hide the header for tab screens
-        }}
-      >
-        <Tab.Screen name="YourListings" component={YourListings} />
-        <Tab.Screen name="AddListings" component={AddListings} />
-        <Tab.Screen name="Settings" component={Settings} />
-      </Tab.Navigator>
-    </View>
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
+      <Tab.Screen name="YourListings" component={YourListings} />
+      <Tab.Screen name="AddListings" component={AddListings} />
+      <Tab.Screen name="Settings" component={Settings} />
+    </Tab.Navigator>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 20,
-    backgroundColor: '#f8f9fa', // Light background color
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 20,
-    textAlign: 'center',
-  },
-});
+const LenderHome = () => {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: true }}>
+      <Stack.Screen name="Home" component={TabNavigator} />
+      <Stack.Screen name="EditListing" component={EditListing} />
+    </Stack.Navigator>
+  );
+};
 
 export default LenderHome;

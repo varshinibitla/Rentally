@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Image } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, Button } from 'react-native';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
 
-const YourListings = () => {
+const YourListings = ({ navigation }) => {
   const [listings, setListings] = useState([]);
   const auth = getAuth();
 
@@ -12,7 +12,7 @@ const YourListings = () => {
     const listingsRef = ref(db, 'listings');
 
     // Fetch listings from Firebase
-    onValue(listingsRef, (snapshot) => {
+    const unsubscribe = onValue(listingsRef, (snapshot) => {
       const data = snapshot.val();
       const listingsArray = [];
       const userEmail = auth.currentUser ? auth.currentUser.email : null; // Get the current user's email
@@ -29,19 +29,33 @@ const YourListings = () => {
 
     // Cleanup listener on unmount
     return () => {
-      listingsRef.off();
+      unsubscribe(); // Call the unsubscribe function to remove the listener
     };
   }, [auth.currentUser]);
 
-  const renderItem = ({ item }) => (
-    <View style={styles.listingContainer}>
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <Text style={styles.itemName}>{item.itemName}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-      <Text style={styles.price}>${item.price} per day</Text>
-      <Text style={styles.rentalDuration}>{item.rentalDuration} days</Text>
-    </View>
-  );
+  const renderItem = ({ item }) => {
+    // Use the Base64 string if available, otherwise use a hardcoded URL
+    const imageUri = item.image
+      ? `data:image/jpeg;base64,${item.image}`
+      : 'https://i.pinimg.com/236x/bc/fc/1b/bcfc1b5b3d20e3dd637ae6165ba8425f.jpg'; // Hardcoded stock image URL
+
+    return (
+      <View style={styles.listingContainer}>
+        <Image
+          source={{ uri: imageUri }} // Display the image
+          style={styles.image}
+        />
+        <Text style={styles.itemName}>{item.itemName}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.price}>${item.price} per day</Text>
+        <Text style={styles.rentalDuration}>{item.rentalDuration} days</Text>
+        <Button
+          title="Edit"
+          onPress={() => navigation.navigate('EditListing', { listing: item })} // Navigate to EditListing
+        />
+      </View>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -72,15 +86,22 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   listingContainer: {
-    marginBottom: 20,
-    padding: 10,
+    marginBottom: 15,
     backgroundColor: '#ffffff',
     borderRadius: 5,
+    padding: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 1.41,
     elevation: 2,
   },
   image: {
     width: '100%',
-    height: 200,
+    height: 150,
     borderRadius: 5,
   },
   itemName: {
@@ -89,15 +110,16 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: 14,
-    color: '#555',
+    color: '#666',
   },
   price: {
     fontSize: 16,
+    fontWeight: 'bold',
     color: '#007BFF',
   },
   rentalDuration: {
     fontSize: 14,
-    color: '#888',
+    color: '#666',
   },
   noListings: {
     textAlign: 'center',

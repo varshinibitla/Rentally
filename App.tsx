@@ -47,7 +47,7 @@ function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <Image source={require("./rentally.png")} style={styles.logo} />
-      <Text style={styles.title}>Welcome to Rentally</Text>
+      <Text style={styles.title}>Welcome!</Text>
       <TouchableOpacity
         style={styles.button}
         onPress={() => navigation.navigate("SignUp")}
@@ -152,13 +152,14 @@ function App() {
       <Stack.Navigator
         initialRouteName="HomeScreen"
         screenOptions={{
-                  headerStyle: {
-                    backgroundColor: "#000000",
-                  },
-                  headerTintColor: "#ffffff",
-                  headerTitleStyle: {
-                    fontWeight: "bold",
-                  },
+          headerShown: false,
+          headerStyle: {
+            backgroundColor: "#000000",
+          },
+          headerTintColor: "#ffffff",
+          headerTitleStyle: {
+            fontWeight: "bold",
+          },
         }}
       >
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
@@ -174,7 +175,7 @@ const styles = StyleSheet.create({
   logo: {
           resizeMode: 'contain',
           marginTop: 0,
-        width: 200,
+        width: 300,
         height: 200
         },
     input: {
