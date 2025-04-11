@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Button, Alert, TouchableOpacity, Image } from 'react-native';
-import { getDatabase, ref, set } from '@firebase/database';
+import { getDatabase, ref, set, remove } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
 import { launchImageLibrary } from 'react-native-image-picker';
 
@@ -39,6 +39,34 @@ const EditListing = ({ route, navigation }) => {
     }
   };
 
+  const handleDeleteListing = async () => {
+    Alert.alert(
+      'Confirm Deletion',
+      'Are you sure you want to delete this listing?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          onPress: async () => {
+            try {
+              const listingRef = ref(db, `listings/${listing.id}`);
+              await remove(listingRef); // Delete the listing from the database
+              Alert.alert('Success', 'Listing deleted successfully!');
+              navigation.goBack(); // Navigate back after deletion
+            } catch (error) {
+              console.error('Error deleting listing:', error);
+              Alert.alert('Error', 'Could not delete listing. Please try again.');
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+
   const selectImage = () => {
     const options = {
       mediaType: 'photo',
@@ -58,7 +86,6 @@ const EditListing = ({ route, navigation }) => {
   };
 
   // Set the header options
-  
 
   return (
     <View style={styles.container}>
@@ -66,7 +93,7 @@ const EditListing = ({ route, navigation }) => {
         {image ? (
           <Image source={{ uri: `data:image/jpeg;base64,${image}` }} style={styles.image} />
         ) : (
-          <Text style={styles.imagePlaceholder}>Select an Image</Text>
+          <Text style={styles.imagePlaceholder}>Select an Image</Text> // Correctly wrapped
         )}
       </TouchableOpacity>
       <TextInput
@@ -95,7 +122,10 @@ const EditListing = ({ route, navigation }) => {
         placeholder="Rental Duration (days)"
         keyboardType="numeric"
       />
-      <Button title="Update Listing" onPress={handleUpdateListing} />
+      <View style={styles.buttonContainer}>
+        <Button title="Update Listing" onPress={handleUpdateListing} />
+        <Button title="Delete Listing" onPress={handleDeleteListing} color="red" />
+      </View>
     </View>
   );
 };
@@ -114,6 +144,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     backgroundColor: '#ffffff',
     marginBottom: 15,
+  },
+  buttonContainer: {
+    flexDirection: 'row', // Arrange buttons in a row
+    justifyContent: 'space-evenly', // Space between buttons
+    marginTop: 10, // Add some margin if needed
   },
   backButton: {
     marginLeft: 10,

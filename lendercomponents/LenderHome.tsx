@@ -5,6 +5,7 @@ import YourListings from './YourListings';
 import AddListings from './AddListings';
 import Settings from './Settings';
 import EditListing from './EditListing';
+import ItemDetail from './ItemDetail';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -28,6 +29,7 @@ const LenderHome = () => {
     <Stack.Navigator screenOptions={{ headerShown: true }}>
       <Stack.Screen name="Home" component={TabNavigator} />
       <Stack.Screen name="EditListing" component={EditListing} />
+      <Stack.Screen name="ItemDetail" component={ItemDetail} />
     </Stack.Navigator>
   );
 };

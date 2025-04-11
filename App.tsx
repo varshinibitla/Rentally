@@ -23,7 +23,7 @@ import {
 } from "@firebase/auth";
 import { getDatabase, ref, get, child, set, onValue } from "@firebase/database";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
-import LenderHome from './lendercomponents/LenderHome';
+import LenderHome from './LenderComponents/LenderHome';
 
 const firebaseConfig = {
   apiKey: "AIzaSyBvKJwcVfiV4TZJR_gLUTALF5AlAUwiTfI",
