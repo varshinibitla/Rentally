@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, Button } from 'react-native';
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
+import { NavigationProp } from '@react-navigation/native';
 
-const YourListings = ({ navigation }) => {
-  const [listings, setListings] = useState([]);
+const YourListings = ({ navigation }: { navigation: NavigationProp<any> }) => {
+  const [listings, setListings] = useState<{ id: string; itemName: string; description: string; price: number; rentalDuration: number; image?: string }[]>([]);
   const auth = getAuth();
 
   useEffect(() => {
@@ -33,7 +34,7 @@ const YourListings = ({ navigation }) => {
     };
   }, [auth.currentUser]);
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item }: { item: { id: string; itemName: string; description: string; price: number; rentalDuration: number; image?: string } }) => {
     // Use the Base64 string if available, otherwise use a hardcoded URL
     const imageUri = item.image
       ? `data:image/jpeg;base64,${item.image}`
@@ -45,22 +46,15 @@ const YourListings = ({ navigation }) => {
           source={{ uri: imageUri }} // Display the image
           style={styles.image}
         />
-        <View style={styles.titleContainer}>
-          <Text style={styles.itemName}>{item.itemName}</Text>
-          <Text style={[styles.status, item.status === 'not_yet_rented' ? styles.notRented : styles.rented]}>
-            {item.status === 'not_yet_rented' ? 'Not Rented' : 'Rented'}
-          </Text>
-        </View>
-        <View style={styles.titleContainer}>
-          <Text style={styles.price}>${item.price} per day</Text>
-          <Text style={styles.rentalDuration}>Max Duration: {item.rentalDuration} Days</Text>
-        </View>
-        <View style={styles.buttonContainer}>
-          <Button title="View More" onPress={() => navigation.navigate('ItemDetail', { listing: item })}/>
-          <Button title="Edit" onPress={() => navigation.navigate('EditListing', { listing: item })}/>
-        </View>
+        <Text style={styles.itemName}>{item.itemName}</Text>
+        <Text style={styles.description}>{item.description}</Text>
+        <Text style={styles.price}>${item.price} per day</Text>
+        <Text style={styles.rentalDuration}>{item.rentalDuration} days</Text>
+        <Button
+          title="Edit"
+          onPress={() => navigation.navigate('EditListing', { listing: item })} // Navigate to EditListing
+        />
       </View>
-      
     );
   };
 
@@ -114,7 +108,6 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 5
   },
   description: {
     fontSize: 14,
@@ -133,27 +126,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     color: '#888',
-  },
-  buttonContainer: {
-    flexDirection: 'row', // Arrange buttons in a row
-    justifyContent: 'space-between', // Space between buttons
-    marginTop: 15,
-    width: 150
-  },
-  status: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginTop: 5,
-  },
-  notRented: {
-    color: 'green', // Color for "Not Rented"
-  },
-  rented: {
-    color: 'red', // Color for "Rented" (if you want to add this in the future)
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
   },
 });
 

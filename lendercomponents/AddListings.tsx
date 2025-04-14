@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet, Alert, ScrollView, TouchableOpacity,
 import { launchImageLibrary } from 'react-native-image-picker';
 import { getDatabase, ref, set, push } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
-import RNFetchBlob from 'rn-fetch-blob';
+// import RNFetchBlob from 'rn-fetch-blob';
 
 const AddListings = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -11,24 +11,23 @@ const AddListings = () => {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [rentalDuration, setRentalDuration] = useState('');
-  const [status, setStatus] = useState('not_yet_rented');
 
   const auth = getAuth();
   const db = getDatabase();
 
   const pickImage = () => {
     const options = {
-      mediaType: 'photo',
+      mediaType: 'photo' as const,
       includeBase64: true,
     };
 
     launchImageLibrary(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
+      } else if (response.errorMessage) {
+        console.log('ImagePicker Error: ', response.errorMessage);
       } else if (response.assets) {
-        setImage(response.assets[0].base64);
+        setImage(response.assets[0].base64 ?? null);
       }
     });
   };
@@ -53,8 +52,6 @@ const AddListings = () => {
         rentalDuration,
         image,
         userEmail,
-        ratings: [0],
-        status,
       };
 
       await set(newListingRef, listingData);
@@ -65,11 +62,11 @@ const AddListings = () => {
       setDescription('');
       setPrice('');
       setRentalDuration('');
-      setStatus('not_yet_rented');
       Alert.alert('Success', 'Listing added successfully!');
     } catch (error) {
       console.error('Error adding listing:', error);
-      Alert.alert('Error', `Could not add listing: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      Alert.alert('Error', `Could not add listing: ${errorMessage}`);
     }
   };
 
