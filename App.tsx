@@ -93,6 +93,11 @@ function SignUp({ navigation }) {
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+          onPress={() => navigation.navigate("SignIn")}
+        >
+          <Text style={{ marginTop: 10, color: "blue" }}>Already have an account? Sign In</Text>
+        </TouchableOpacity>
     </View>
   );
 }
@@ -133,6 +138,51 @@ function SignIn({ navigation }) {
       <TouchableOpacity style={styles.button} onPress={handleSignIn}>
         <Text style={styles.buttonText}>Sign In</Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("ForgotPassword")}
+      >
+        <Text style={{ marginTop: 10, color: "blue" }}>Forgot Password?</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => navigation.navigate("SignUp")}
+      >
+        <Text style={{ marginTop: 10, color: "blue" }}>Don't have an account? Sign Up</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+function ForgotPassword({ navigation }) {
+  const [email, setEmail] = useState("");
+
+  const handleResetPassword = async () => {
+    if (!email) {
+      Alert.alert("Please enter your email address");
+      return;
+    }
+    sendPasswordResetEmail(auth, email)
+      .then(() => {
+        Alert.alert("Password reset email sent!");
+        navigation.goBack();
+      })
+      .catch((error) => {
+        Alert.alert("Error: " + error.message);
+      });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>Reset Password</Text>
+      <TextInput
+        style={styles.input}
+        value={email}
+        onChangeText={setEmail}
+        placeholder="Enter your email"
+        keyboardType="email-address"
+      />
+      <TouchableOpacity style={styles.button} onPress={handleResetPassword}>
+        <Text style={styles.buttonText}>Send Reset Email</Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -158,6 +208,7 @@ function App() {
         <Stack.Screen name="HomeScreen" component={HomeScreen} />
         <Stack.Screen name="SignUp" component={SignUp} />
         <Stack.Screen name="SignIn" component={SignIn} />
+        <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="LenderHome" component={LenderHome} />
       </Stack.Navigator>
     </NavigationContainer>

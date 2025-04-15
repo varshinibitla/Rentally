@@ -4,6 +4,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { getDatabase, ref, set, push } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
 import RNFetchBlob from 'rn-fetch-blob';
+import { Picker } from '@react-native-picker/picker';
 
 const AddListings = () => {
   const [image, setImage] = useState<string | null>(null);
@@ -11,6 +12,7 @@ const AddListings = () => {
   const [description, setDescription] = useState('');
   const [price, setPrice] = useState('');
   const [rentalDuration, setRentalDuration] = useState('');
+  const [itemCategory, setItemCategory] = useState('');
   const [status, setStatus] = useState('not_yet_rented');
 
   const auth = getAuth();
@@ -34,7 +36,7 @@ const AddListings = () => {
   };
 
   const handleAddListing = async () => {
-    if (!itemName || !description || !price || !rentalDuration || !image) {
+    if (!itemName || !description || !price || !rentalDuration || !image || !itemCategory) {
       Alert.alert('Error', 'Please fill in all fields and select an image.');
       return;
     }
@@ -53,6 +55,7 @@ const AddListings = () => {
         rentalDuration,
         image,
         userEmail,
+        itemCategory,
         ratings: [0],
         status,
       };
@@ -65,6 +68,7 @@ const AddListings = () => {
       setDescription('');
       setPrice('');
       setRentalDuration('');
+      setItemCategory('');
       setStatus('not_yet_rented');
       Alert.alert('Success', 'Listing added successfully!');
     } catch (error) {
@@ -104,6 +108,23 @@ const AddListings = () => {
           onChangeText={setDescription}
           placeholder="Enter description"
         />
+      </View>
+
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Item Category:</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={itemCategory}
+            onValueChange={(value) => setItemCategory(value)}
+          >
+            <Picker.Item label="Select a Category" value="" />
+            <Picker.Item label="Electronics" value="electronics" />
+            <Picker.Item label="Furniture" value="furniture" />
+            <Picker.Item label="Clothing" value="clothing" />
+            <Picker.Item label="Books" value="books" />
+            <Picker.Item label="Other" value="other" />
+          </Picker>
+        </View>
       </View>
 
       <View style={styles.inputContainer}>
@@ -182,6 +203,14 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  pickerContainer: {
+    height: 50,
+    borderColor: '#007BFF',
+    borderWidth: 1,
+    borderRadius: 5,
+    justifyContent: 'center',
+    backgroundColor: '#ffffff',
   },
 });
 
