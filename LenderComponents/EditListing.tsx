@@ -3,6 +3,7 @@ import { View, Text, TextInput, StyleSheet, Button, Alert, TouchableOpacity, Ima
 import { getDatabase, ref, set, remove } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { Picker } from '@react-native-picker/picker';
 
 const EditListing = ({ route, navigation }) => {
   const { listing } = route.params; // Get the listing data passed from YourListings
@@ -11,12 +12,13 @@ const EditListing = ({ route, navigation }) => {
   const [price, setPrice] = useState(listing.price);
   const [rentalDuration, setRentalDuration] = useState(listing.rentalDuration);
   const [image, setImage] = useState(listing.image); // Store the Base64 image
+  const [itemCategory, setItemCategory] = useState(listing.itemCategory);
 
   const auth = getAuth();
   const db = getDatabase();
 
   const handleUpdateListing = async () => {
-    if (!itemName || !description || !price || !rentalDuration) {
+    if (!itemName || !description || !price || !rentalDuration || !itemCategory) {
       Alert.alert('Error', 'Please fill in all fields.');
       return;
     }
@@ -30,6 +32,7 @@ const EditListing = ({ route, navigation }) => {
         rentalDuration,
         userEmail: listing.userEmail, // Keep the userEmail unchanged
         image, // Save the Base64 image
+        itemCategory
       });
       Alert.alert('Success', 'Listing updated successfully!');
       navigation.goBack(); // Navigate to YourListings after updating
@@ -108,6 +111,22 @@ const EditListing = ({ route, navigation }) => {
         onChangeText={setDescription}
         placeholder="Description"
       />
+      <View style={styles.inputContainer}>
+        <Text style={styles.label}>Item Category:</Text>
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={itemCategory}
+            onValueChange={(value) => setItemCategory(value)}
+          >
+            <Picker.Item label="Select a Category" value="" />
+            <Picker.Item label="Electronics" value="electronics" />
+            <Picker.Item label="Furniture" value="furniture" />
+            <Picker.Item label="Clothing" value="clothing" />
+            <Picker.Item label="Books" value="books" />
+            <Picker.Item label="Other" value="other" />
+          </Picker>
+        </View>
+      </View>
       <TextInput
         style={styles.input}
         value={price}
@@ -176,6 +195,14 @@ const styles = StyleSheet.create({
     color: '#007BFF',
     fontSize: 16,
   },
+  pickerContainer: {
+      height: 50,
+      borderColor: '#007BFF',
+      borderWidth: 1,
+      borderRadius: 5,
+      justifyContent: 'center',
+      backgroundColor: '#ffffff',
+    },
 });
 
 export default EditListing;
