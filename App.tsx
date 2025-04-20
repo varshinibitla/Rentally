@@ -19,13 +19,22 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   initializeAuth,
-  getReactNativePersistence
+  getReactNativePersistence,
+  updateProfile
 } from "@firebase/auth";
 import { getDatabase, ref, get, child, set, onValue } from "@firebase/database";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import LenderHome from './LenderComponents/LenderHome';
 
 const firebaseConfig = {
+  apiKey: "AIzaSyBvKJwcVfiV4TZJR_gLUTALF5AlAUwiTfI",
+  authDomain: "rentally-eb5cd.firebaseapp.com",
+  databaseURL: "https://rentally-eb5cd-default-rtdb.firebaseio.com",
+  projectId: "rentally-eb5cd",
+  storageBucket: "rentally-eb5cd.firebasestorage.app",
+  messagingSenderId: "719041880495",
+  appId: "1:719041880495:web:9c5e01faf80047a39ecf5a",
+  measurementId: "G-G6D4QRB2CD"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -35,6 +44,7 @@ const auth = initializeAuth(app, {
 });
 
 const dbRef = ref(getDatabase());
+const db = getDatabase();
 
 function HomeScreen({ navigation }) {
   return (
@@ -57,25 +67,66 @@ function HomeScreen({ navigation }) {
   );
 }
 
+const defaultProfilePic = 'https://www.gravatar.com/avatar'; // Ensure this is a valid image URL
+const joinDate = new Date().toISOString();
+
 function SignUp({ navigation }) {
   const [email, setEmail] = useState("");
-
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState(""); // New state for username
+  const auth = getAuth();
+  const db = getDatabase();
 
   const handleSignup = async () => {
+    const userRef = ref(db, 'userinfo');
+
+    // Check if the username already exists
+    const usernameSnapshot = await get(child(userRef, username));
+    if (usernameSnapshot.exists()) {
+      Alert.alert("Error", "Username already exists. Please choose another one.");
+      return;
+    }
+
+    // Create user with email and password
     createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        navigation.navigate("SignIn");
-        Alert.alert("Sign Up Successful");
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+
+        // Update the user's profile to set the displayName
+        await updateProfile(user, {
+          displayName: username // Set the displayName to the username
+        });
+
+        // Store user's username, email, and profile picture in the database
+        try {
+          await set(ref(db, 'userinfo/' + username), {
+            uid: user.uid,
+            email: user.email,
+            username: username,
+            profilePicture: defaultProfilePic, // Store the default profile picture
+            joinDate: joinDate,
+          });
+          Alert.alert("Sign Up Successful");
+          navigation.navigate("SignIn");
+        } catch (error) {
+          console.error("Error setting profile picture in Firebase:", error);
+          Alert.alert("Error saving profile picture: " + error.message);
+        }
       })
       .catch((error) => {
         const errorMessage = error.message;
-        Alert.alert("Error" + errorMessage);
+        Alert.alert("Error: " + errorMessage);
       });
   };
 
   return (
     <View style={styles.container}>
+      <TextInput
+        style={styles.input}
+        value={username}
+        onChangeText={setUsername}
+        placeholder="Username" // New input for username
+      />
       <TextInput
         style={styles.input}
         value={email}
@@ -93,14 +144,13 @@ function SignUp({ navigation }) {
       <TouchableOpacity style={styles.button} onPress={handleSignup}>
         <Text style={styles.buttonText}>Sign Up</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-          onPress={() => navigation.navigate("SignIn")}
-        >
-          <Text style={{ marginTop: 10, color: "blue" }}>Already have an account? Sign In</Text>
-        </TouchableOpacity>
+      <TouchableOpacity onPress={() => navigation.navigate("SignIn")}>
+        <Text style={{ marginTop: 10, color: "blue" }}>Already have an account? Sign In</Text>
+      </TouchableOpacity>
     </View>
   );
 }
+
 
 function SignIn({ navigation }) {
   const [email, setEmail] = useState("");
