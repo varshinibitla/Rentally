@@ -24,7 +24,7 @@ const TabNavigator = () => {
           return <Icon name={iconName} size={size} color={color} />;
         },
       })}>
-      <Tab.Screen name="Marketplace" component={MarketPlace} />
+      <Tab.Screen name="MarketPlace" component={MarketPlace} />
       <Tab.Screen name="Profile" component={ProfileSetting} />
     </Tab.Navigator>
   );
