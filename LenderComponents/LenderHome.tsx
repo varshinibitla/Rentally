@@ -6,6 +6,7 @@ import AddListings from './AddListings';
 import ProfileSetting from './ProfileSetting';
 import EditListing from './EditListing';
 import ItemDetail from './ItemDetail';
+import Chatbot from './Chatbot';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -30,6 +31,7 @@ const LenderHome = () => {
       <Stack.Screen name="Home" component={TabNavigator} />
       <Stack.Screen name="EditListing" component={EditListing} />
       <Stack.Screen name="ItemDetail" component={ItemDetail} />
+      <Stack.Screen name="Chatbot" component={Chatbot} />
     </Stack.Navigator>
   );
 };

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "42325569623",
+    "project_id": "rentally-yusuf",
+    "storage_bucket": "rentally-yusuf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:42325569623:android:877880a74a622cc6cd7312",
+        "android_client_info": {
+          "package_name": "com.rentally"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCWcpaLnEcOHAUp1MBsjCA6g2KUXBuMzNc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
