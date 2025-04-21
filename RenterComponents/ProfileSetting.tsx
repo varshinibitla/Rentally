@@ -5,7 +5,7 @@ const ProfileSettings = ({ navigation }) => {
   return (
     <View style={styles.container}>
         <Text style={styles.switchToText}>Navigate to: </Text>
-        <Button title="Lander Home" onPress={() => navigation.navigate('LenderHome')} />
+        <Button title="Lender Home" onPress={() => navigation.navigate('LenderHome')} />
     </View>
   );
 };
