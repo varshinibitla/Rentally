@@ -25,6 +25,7 @@ import {
 import { getDatabase, ref, get, child, set, onValue } from "@firebase/database";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import LenderHome from './LenderComponents/LenderHome';
+import RenterHome from "./RenterComponents/RenterHome";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBvKJwcVfiV4TZJR_gLUTALF5AlAUwiTfI",
@@ -160,7 +161,7 @@ function SignIn({ navigation }) {
   const handleSignIn = async () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        navigation.navigate("LenderHome");
+        navigation.navigate("RenterHome");
         Alert.alert("Sign In Successful");
       })
       .catch((error) => {
@@ -260,6 +261,7 @@ function App() {
         <Stack.Screen name="SignIn" component={SignIn} />
         <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
         <Stack.Screen name="LenderHome" component={LenderHome} />
+        <Stack.Screen name="RenterHome" component={RenterHome} />
       </Stack.Navigator>
     </NavigationContainer>
   );
