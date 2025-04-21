@@ -116,7 +116,7 @@ const ProfileSetting = () => {
         <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to Edit Profile */}}>
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to Settings */}}>
+        <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate('Chatbot')}}>
           <Text style={styles.buttonText}>Settings</Text>
         </TouchableOpacity>
       </View>
