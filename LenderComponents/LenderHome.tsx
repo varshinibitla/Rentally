@@ -3,7 +3,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import YourListings from './YourListings';
 import AddListings from './AddListings';
-import Settings from './Settings';
+import ProfileSetting from './ProfileSetting';
 import EditListing from './EditListing';
 import ItemDetail from './ItemDetail';
 
@@ -17,9 +17,9 @@ const TabNavigator = () => {
         headerShown: false,
       }}
     >
-      <Tab.Screen name="YourListings" component={YourListings} />
-      <Tab.Screen name="AddListings" component={AddListings} />
-      <Tab.Screen name="Settings" component={Settings} />
+      <Tab.Screen name="Your Listings" component={YourListings} />
+      <Tab.Screen name="Add Listings" component={AddListings} />
+      <Tab.Screen name="Profile" component={ProfileSetting} />
     </Tab.Navigator>
   );
 };
