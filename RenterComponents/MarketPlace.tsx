@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {View, StyleSheet, FlatList} from 'react-native';
 import Searchbox from '../RenterComponents/Searchbox';
 import Listings from '../RenterComponents/Listings';
 import {getDatabase, ref, onValue} from '@firebase/database';
 import {getAuth} from '@firebase/auth';
+import { Picker } from '@react-native-picker/picker';
 
 interface Item {
   id: string;
@@ -18,6 +19,7 @@ const MarketPlace = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [listings, setListings] = useState<Item[]>([]);
   const [filteredData, setFilteredData] = useState<Item[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
   const auth = getAuth();
 
   React.useEffect(() => {
@@ -71,6 +73,23 @@ const MarketPlace = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  filterContainer: {
+    marginBottom: 20,
+    backgroundColor: '#ffffff',
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderColor: '#007BFF',
+    borderWidth: 1,
+  },
+  filterLabel: {
+    fontSize: 16,
+    marginBottom: 5,
+  },
+  picker: {
+    height: 50,
+    width: '100%',
   },
 });
 
