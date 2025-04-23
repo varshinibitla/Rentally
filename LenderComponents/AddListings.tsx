@@ -14,6 +14,7 @@ const AddListings = () => {
   const [rentalDuration, setRentalDuration] = useState('');
   const [itemCategory, setItemCategory] = useState('');
   const [status, setStatus] = useState('not_yet_rented');
+  const [rentedBy, setRentedBy] = useState('');
 
   const auth = getAuth();
   const db = getDatabase();
@@ -58,6 +59,7 @@ const AddListings = () => {
         itemCategory,
         ratings: [0],
         status,
+        rentedBy
       };
 
       await set(newListingRef, listingData);
@@ -70,6 +72,7 @@ const AddListings = () => {
       setRentalDuration('');
       setItemCategory('');
       setStatus('not_yet_rented');
+      setRentedBy('');
       Alert.alert('Success', 'Listing added successfully!');
     } catch (error) {
       console.error('Error adding listing:', error);

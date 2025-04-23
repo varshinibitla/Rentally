@@ -3,66 +3,112 @@ import { View, Text, StyleSheet, Image, FlatList, ActivityIndicator, TouchableOp
 import { getDatabase, ref, onValue } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
 import { useNavigation } from '@react-navigation/native';
+import AddListings from './AddListings';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProfileSetting = () => {
   const [userInfo, setUserInfo] = useState(null);
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
   const [listings, setListings] = useState([]);
+  const [borrowedItems, setBorrowedItems] = useState([]);
+  const [selectedTab, setSelectedTab] = useState(0); // To handle tab selection
   const auth = getAuth();
   const navigation = useNavigation();
 
-  useEffect(() => {
-    const db = getDatabase();
-    const user = auth.currentUser;
+  useFocusEffect(
+    React.useCallback(() => {
+      const db = getDatabase();
+      const user = auth.currentUser;
 
-    if (user) {
-      const userRef = ref(db, 'userinfo/' + user.displayName);
-      const postsRef = ref(db, 'listings'); // Assuming posts are stored under 'listings'
+      if (user) {
+        const userRef = ref(db, 'userinfo/' + user.displayName);
+        const postsRef = ref(db, 'listings');
 
-      const unsubscribeUser = onValue(userRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          setUserInfo(data);
-        } else {
-          console.log("No user information found for this username.");
-        }
+        const unsubscribeUser = onValue(userRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            setUserInfo(data);
+          } else {
+            console.log("No user information found for this username.");
+          }
+          setLoading(false);
+        });
+
+        const unsubscribePosts = onValue(postsRef, (snapshot) => {
+          const postsData = snapshot.val();
+          const userListings = [];
+          const userBorrowedItems = [];
+          const ratings = [];
+          
+          for (let id in postsData) {
+            const post = { ...postsData[id], id }; // Add the id to the post object
+            
+            // Adding user's listings
+            if (post.userEmail === user.email) {
+              userListings.push(post);
+              if (post.ratings && Array.isArray(post.ratings)) {
+                ratings.push(...post.ratings);
+              }
+            }
+            
+            // Adding items borrowed by the user
+            if (post.rentedBy === user.email) {
+              console.log("Found borrowed item:", post.itemName);
+              userBorrowedItems.push(post);
+            }
+          }
+          
+          console.log("Total borrowed items:", userBorrowedItems.length);
+          setListings(userListings);
+          setBorrowedItems(userBorrowedItems);
+
+          const filteredRatings = ratings.filter(rating => rating > 0);
+          if (filteredRatings.length > 0) {
+            const total = filteredRatings.reduce((acc, rating) => acc + rating, 0);
+            const avg = total / filteredRatings.length;
+            setAverageRating(avg);
+          } else {
+            setAverageRating(0); // No valid ratings found
+          }
+        });
+
+        return () => {
+          unsubscribeUser();
+          unsubscribePosts();
+        };
+      } else {
+        console.log("No user is currently signed in.");
         setLoading(false);
-      });
+      }
+    }, [auth.currentUser])
+  );
 
-      const unsubscribePosts = onValue(postsRef, (snapshot) => {
+  // Debug function - can be removed in production
+  const debugBorrowedItems = () => {
+    console.log("Current borrowedItems state:", borrowedItems);
+    
+    const db = getDatabase();
+    const postsRef = ref(db, 'listings');
+    const user = auth.currentUser;
+    
+    if (user) {
+      onValue(postsRef, (snapshot) => {
         const postsData = snapshot.val();
-        const userListings = [];
-        const ratings = [];
+        console.log("All listings count:", Object.keys(postsData || {}).length);
+        
+        let count = 0;
         for (let id in postsData) {
-          if (postsData[id].userEmail === user.email) { // Check if the post belongs to the user
-            userListings.push(postsData[id]); // Collect user listings
-            ratings.push(...postsData[id].ratings); // Assuming ratings is an array
+          if (postsData[id].status === 'rented' && 
+              postsData[id].rentedBy === user.email) {
+            count++;
+            console.log("Found item:", postsData[id].itemName);
           }
         }
-        setListings(userListings);
-        
-        // Filter out zero ratings (index 0 rating)
-        const filteredRatings = ratings.filter(rating => rating > 0);
-        if (filteredRatings.length > 0) {
-          const total = filteredRatings.reduce((acc, rating) => acc + rating, 0);
-          const avg = total / filteredRatings.length;
-          setAverageRating(avg);
-        } else {
-          setAverageRating(0); // No valid ratings found
-        }
-      });
-
-      // Cleanup listeners on unmount
-      return () => {
-        unsubscribeUser();
-        unsubscribePosts();
-      };
-    } else {
-      console.log("No user is currently signed in.");
-      setLoading(false);
+        console.log("Manual count of borrowed items:", count);
+      }, { onlyOnce: true });
     }
-  }, [auth.currentUser]);
+  };
 
   if (loading) {
     return (
@@ -76,9 +122,7 @@ const ProfileSetting = () => {
     const imageUri = item.image
       ? { uri: `data:image/jpeg;base64,${item.image}` }
       : { uri: 'https://i.pinimg.com/236x/bc/fc/1b/bcfc1b5b3d20e3dd637ae6165ba8425f.jpg' };
-  
-    console.log("Image source:", imageUri); // Better debug logging
-  
+
     return (
       <View style={styles.listingContainer}>
         <TouchableOpacity 
@@ -94,6 +138,28 @@ const ProfileSetting = () => {
     );
   };
 
+  // Same rendering for borrowed items
+  const renderBorrowedItem = ({ item }) => {
+    const imageUri = item.image
+      ? { uri: `data:image/jpeg;base64,${item.image}` }
+      : { uri: 'https://i.pinimg.com/236x/bc/fc/1b/bcfc1b5b3d20e3dd637ae6165ba8425f.jpg' };
+
+    return (
+      <View style={styles.listingContainer}>
+        <TouchableOpacity 
+          style={styles.touchableContainer} 
+          onPress={() => {
+            navigation.navigate('ItemDetail', { listing: item });
+          }}
+        >
+          <Image source={imageUri} style={styles.listingImage} />
+          <Text style={styles.listingName}>{item.itemName}</Text>
+          <Text style={styles.borrowedStatus}>Borrowed</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.profileHeader}>
@@ -101,6 +167,7 @@ const ProfileSetting = () => {
           source={{ uri: userInfo.profilePicture }}
           style={styles.profilePicture}
         />
+        
         <View style={styles.userInfo}>
           <Text style={styles.username}>{userInfo.username}</Text>
           <Text style={styles.bio}>
@@ -111,23 +178,71 @@ const ProfileSetting = () => {
           </Text>
         </View>
       </View>
-
       <View style={styles.buttonContainer}>
-        <TouchableOpacity style={styles.button} onPress={() => {/* Navigate to Edit Profile */}}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('EditProfile')}>
           <Text style={styles.buttonText}>Edit Profile</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => {navigation.navigate('Chatbot')}}>
+        <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddListings')}>
+          <Text style={styles.buttonText}>Add Listing</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={() => {}}>
           <Text style={styles.buttonText}>Settings</Text>
         </TouchableOpacity>
       </View>
 
-      <FlatList
-        data={listings}
-        renderItem={renderListing}
-        keyExtractor={(item, index) => index.toString()}
-        numColumns={3}
-        contentContainerStyle={styles.listingsContainer}
-      />
+      {/* Tabs */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity 
+          style={[styles.tab, selectedTab === 0 && styles.activeTab]}
+          onPress={() => setSelectedTab(0)}
+        >
+          <Text style={[styles.tabText, selectedTab === 0 && styles.activeTabText]}>Listed Items</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.tab, selectedTab === 1 && styles.activeTab]}
+          onPress={() => {
+            setSelectedTab(1);
+            // Debug when switching to borrowed tab
+            debugBorrowedItems();
+          }}
+        >
+          <Text style={[styles.tabText, selectedTab === 1 && styles.activeTabText]}>Borrowed Items</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Tab Content */}
+      {selectedTab === 0 ? (
+        listings.length > 0 ? (
+          <FlatList
+            data={listings}
+            renderItem={renderListing}
+            keyExtractor={(item, index) => `listing-${index}`}
+            numColumns={3}
+            contentContainerStyle={styles.listingsContainer}
+          />
+        ) : (
+          <View style={styles.emptyTabContent}>
+            <Text style={styles.emptyTabText}>You have no listed items</Text>
+          </View>
+        )
+      ) : (
+        <View style={{ flex: 1 }}>
+          {borrowedItems.length > 0 ? (
+            <FlatList
+              data={borrowedItems}
+              renderItem={renderBorrowedItem}
+              keyExtractor={(item, index) => `borrowed-${index}`}
+              numColumns={3}
+              contentContainerStyle={styles.listingsContainer}
+            />
+          ) : (
+            <View style={styles.emptyTabContent}>
+              <Text style={styles.emptyTabText}>You have no borrowed items</Text>
+            </View>
+          )}
+        </View>
+      )}
     </View>
   );
 };
@@ -183,8 +298,8 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   listingContainer: {
-    width: '30%', // Set a fixed width for uniformity
-    height: 150, // Set a fixed height for uniformity
+    width: '30%',
+    height: 150,
     margin: 5,
     borderRadius: 5,
     backgroundColor: '#f9f9f9',
@@ -192,8 +307,8 @@ const styles = StyleSheet.create({
     padding: 0,
   },
   touchableContainer: {
-    width: '100%',  // Make sure it takes full width
-    height: '100%', // And full height
+    width: '100%',
+    height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -209,6 +324,46 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+  },
+  borrowedStatus: {
+    fontSize: 12,
+    color: '#007BFF',
+    fontStyle: 'italic',
+  },
+  tabsContainer: {
+    flexDirection: 'row',
+    marginVertical: 10,
+    justifyContent: 'space-around',
+  },
+  tab: {
+    paddingVertical: 10,
+    flex: 1,
+    alignItems: 'center',
+    borderBottomWidth: 3,
+    borderBottomColor: '#ddd',
+  },
+  activeTab: {
+    borderBottomColor: '#007BFF',
+  },
+  tabText: {
+    fontSize: 18,
+    color: '#333',
+  },
+  activeTabText: {
+    color: '#007BFF',
+    fontWeight: 'bold',
+  },
+  emptyTabContent: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyTabText: {
+    fontSize: 20,
+    color: '#aaa',
+  },
+  listingsContainer: {
+    paddingBottom: 20,
   },
 });
 
