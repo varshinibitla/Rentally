@@ -12,6 +12,7 @@ import MarketPlace from '../RenterComponents/MarketPlace';
 import ItemView from '../RenterComponents/ItemView';
 import PaymentCheckoutScreen from '../RenterComponents/PaymentCheckoutScreen';
 import EditProfile from './EditProfile';
+import ItemDetailBorrow from './ItemDetailBorrow';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -47,6 +48,7 @@ const LenderHome = () => {
       <Stack.Screen name="EditListing" component={EditListing} options={{ title: 'Edit Listing' }} />
       <Stack.Screen name="AddListings" component={AddListings} options={{ title: 'Add Listing' }} />
       <Stack.Screen name="ItemDetail" component={ItemDetail} options={{ title: 'Details' }} />
+      <Stack.Screen name="ItemDetailBorrow" component={ItemDetailBorrow} options={{ title: 'Details' }} />
       <Stack.Screen name="Chatbot" component={Chatbot} />
       <Stack.Screen name="ItemView" component={ItemView} options={{ title: 'Details' }} />
       <Stack.Screen name="PaymentCheckoutScreen" component={PaymentCheckoutScreen} options={{ title: 'Checkout' }} />

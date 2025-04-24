@@ -24,7 +24,7 @@ interface ListingItemProps {
   navigation: StackNavigationProp<any>;
 }
 
-const ListingItem: React.FC<ListingItemProps> = ({ route }) => {
+const ItemDetailBorrow: React.FC<ListingItemProps> = ({ route }) => {
   const navigation = useNavigation();
   const { listing } = route.params;
   const { image, itemName, description, price, rentalDuration, ratings = [], status } = listing;
@@ -70,11 +70,6 @@ const ListingItem: React.FC<ListingItemProps> = ({ route }) => {
         </View>
 
         <Text style={styles.description}>Description: {description}</Text>
-      </View>
-      <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('EditListing', { listing: listing })}>
-            <Text style={styles.buttonText}>Edit</Text>
-          </TouchableOpacity>
       </View>
     </View>
   );
@@ -173,4 +168,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ListingItem;
+export default ItemDetailBorrow;
