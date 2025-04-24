@@ -7,12 +7,15 @@ import AddListings from './AddListings';
 import ProfileSetting from './ProfileSetting';
 import EditListing from './EditListing';
 import ItemDetail from './ItemDetail';
+import Settings from './Settings';
 import Chatbot from './Chatbot';
 import MarketPlace from '../RenterComponents/MarketPlace';
 import ItemView from '../RenterComponents/ItemView';
 import PaymentCheckoutScreen from '../RenterComponents/PaymentCheckoutScreen';
 import EditProfile from './EditProfile';
 import ItemDetailBorrow from './ItemDetailBorrow';
+import SurveyScreen from './SurveyScreen';
+
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -53,6 +56,16 @@ const LenderHome = () => {
       <Stack.Screen name="ItemView" component={ItemView} options={{ title: 'Details' }} />
       <Stack.Screen name="PaymentCheckoutScreen" component={PaymentCheckoutScreen} options={{ title: 'Checkout' }} />
       <Stack.Screen name="EditProfile" component={EditProfile} options={{ title: 'Edit Profile' }} />
+      <Stack.Screen
+        name="SurveyScreen"
+        component={SurveyScreen}
+        options={{ title: 'Give Feedback' }}
+      />
+      <Stack.Screen
+                  name="Settings"
+                  component={Settings}
+                  options={{ title: 'Settings' }}
+                />
     </Stack.Navigator>
   );
 };

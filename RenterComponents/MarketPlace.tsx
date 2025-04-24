@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {View, StyleSheet, FlatList} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet } from 'react-native';
 import Searchbox from '../RenterComponents/Searchbox';
 import Listings from '../RenterComponents/Listings';
 import {getDatabase, ref, onValue} from '@firebase/database';
@@ -14,13 +14,20 @@ interface Item {
   price: number;
   image: string;
   status: string;
+  itemCategory?: string;
 }
+
+const capitalize = (str: string) => {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
 
 const MarketPlace = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [listings, setListings] = useState<Item[]>([]);
   const [filteredData, setFilteredData] = useState<Item[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [categories, setCategories] = useState<string[]>([]);
   const auth = getAuth();
 
   React.useEffect(() => {
@@ -29,18 +36,23 @@ const MarketPlace = () => {
 
     // Fetch listings from Firebase
     const unsubscribe = onValue(listingsRef, snapshot => {
-      const data = snapshot.val();
-      const listingsArray = [];
-      const userEmail = auth.currentUser ? auth.currentUser.email : null; // Get the current user's email
+      const data = snapshot.val() || {};
+      const listingsArray: Item[] = [];
+      const categorySet = new Set<string>();
+      const userEmail = auth.currentUser?.email || null;
 
       for (let id in data) {
         // Exclude listings of current user
         if (data[id].userEmail !== userEmail) {
-          listingsArray.push({id, ...data[id]}); // Include the listing data
+          const item: Item = { id, ...data[id] };
+          listingsArray.push(item);
+          if (item.itemCategory) categorySet.add(item.itemCategory);
         }
       }
 
+      const categoryList = Array.from(categorySet).sort();
       setListings(listingsArray);
+      setCategories(categoryList);
       setFilteredData(listingsArray); // Set filtered data to all listings initially
     });
 
@@ -50,13 +62,24 @@ const MarketPlace = () => {
     };
   }, [auth.currentUser]);
 
-  const handleSearch = (text: string): void => {
-    setSearchQuery(text);
-    const filtered = listings.filter((item: Item) =>
-      item.itemName.toLowerCase().includes(text.toLowerCase()),
-    );
-
+  const filterData = (text: string, category: string) => {
+    const lowerText = text.toLowerCase();
+    const filtered = listings.filter(item => {
+      const matchesSearch = item.itemName.toLowerCase().includes(lowerText);
+      const matchesCategory = category ? item.itemCategory === category : true;
+      return matchesSearch && matchesCategory;
+    });
     setFilteredData(filtered);
+  };
+
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
+    filterData(text, selectedCategory);
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value);
+    filterData(searchQuery, value);
   };
 
   return (
@@ -66,6 +89,25 @@ const MarketPlace = () => {
         value={searchQuery}
         onChangeText={handleSearch}
       />
+
+      <View style={styles.filterContainer}>
+        <Text style={styles.filterLabel}>Filter by category:</Text>
+        <Picker
+          selectedValue={selectedCategory}
+          style={styles.picker}
+          onValueChange={handleCategoryChange}
+        >
+          <Picker.Item label="All" value="" />
+          {categories.map(cat => (
+            <Picker.Item
+              label={capitalize(cat)}
+              value={cat}
+              key={cat}
+            />
+          ))}
+        </Picker>
+      </View>
+
       <Listings filteredData={filteredData} />
     </View>
   );
@@ -76,7 +118,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   filterContainer: {
-    marginBottom: 20,
+    marginHorizontal: 16,
+    marginBottom: 12,
     backgroundColor: '#ffffff',
     borderRadius: 5,
     paddingHorizontal: 10,

@@ -4,7 +4,10 @@ import { getDatabase, ref, onValue } from '@firebase/database';
 import { getAuth } from '@firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import AddListings from './AddListings';
+import Settings from './Settings';
 import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Alert } from 'react-native';
 
 const ProfileSetting = () => {
   const [userInfo, setUserInfo] = useState(null);
@@ -138,6 +141,46 @@ const ProfileSetting = () => {
     );
   };
 
+  const handleBorrowedItemPress = async (item) => {
+    const key = `survey_${item.id}`;
+    try {
+      const answered = await AsyncStorage.getItem(key);
+      if (!answered) {
+        // first time: ask
+        Alert.alert(
+          'Survey',
+          'Answer a short survey about the product?',
+          [
+            {
+              text: 'No',
+              onPress: async () => {
+                await AsyncStorage.setItem(key, 'no');
+                // now that they've declined, take them to details
+                navigation.navigate('ItemDetailBorrow', { listing: item });
+              },
+            },
+            {
+              text: 'Yes',
+              onPress: async () => {
+                await AsyncStorage.setItem(key, 'yes');
+                // navigate to your survey screen
+                navigation.navigate('SurveyScreen', { listing: item });
+              },
+            },
+          ],
+          { cancelable: false }
+        );
+      } else {
+        // already answered – just go to details
+        navigation.navigate('ItemDetailBorrow', { listing: item });
+      }
+    } catch (e) {
+      console.error('Survey prompt error', e);
+      navigation.navigate('ItemDetailBorrow', { listing: item });
+    }
+  };
+
+
   // Same rendering for borrowed items
   const renderBorrowedItem = ({ item }) => {
     const imageUri = item.image
@@ -147,10 +190,8 @@ const ProfileSetting = () => {
     return (
       <View style={styles.listingContainer}>
         <TouchableOpacity 
-          style={styles.touchableContainer} 
-          onPress={() => {
-            navigation.navigate('ItemDetailBorrow', { listing: item });
-          }}
+          style={styles.touchableContainer}
+      onPress={() => handleBorrowedItemPress(item)}
         >
           <Image source={imageUri} style={styles.listingImage} />
           <Text style={styles.listingName}>{item.itemName}</Text>
@@ -185,8 +226,33 @@ const ProfileSetting = () => {
         <TouchableOpacity style={styles.button} onPress={() => navigation.navigate('AddListings')}>
           <Text style={styles.buttonText}>Add Listing</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={() => {}}>
+        <TouchableOpacity
+                    style={styles.button}
+                    onPress={() => navigation.navigate('Settings')}
+                   >
           <Text style={styles.buttonText}>Settings</Text>
+        </TouchableOpacity>
+
+      </View>
+
+      {/* Tabs */}
+      <View style={styles.tabsContainer}>
+        <TouchableOpacity 
+          style={[styles.tab, selectedTab === 0 && styles.activeTab]}
+          onPress={() => setSelectedTab(0)}
+        >
+          <Text style={[styles.tabText, selectedTab === 0 && styles.activeTabText]}>Listed Items</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity 
+          style={[styles.tab, selectedTab === 1 && styles.activeTab]}
+          onPress={() => {
+            setSelectedTab(1);
+            // Debug when switching to borrowed tab
+            debugBorrowedItems();
+          }}
+        >
+          <Text style={[styles.tabText, selectedTab === 1 && styles.activeTabText]}>Borrowed Items</Text>
         </TouchableOpacity>
       </View>
 
