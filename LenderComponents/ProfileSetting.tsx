@@ -149,7 +149,7 @@ const ProfileSetting = () => {
         <TouchableOpacity 
           style={styles.touchableContainer} 
           onPress={() => {
-            navigation.navigate('ItemDetail', { listing: item });
+            navigation.navigate('ItemDetailBorrow', { listing: item });
           }}
         >
           <Image source={imageUri} style={styles.listingImage} />
