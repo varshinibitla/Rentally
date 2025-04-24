@@ -153,7 +153,7 @@ function SignIn({ navigation }) {
   const handleSignIn = async () => {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        navigation.navigate("RenterHome");
+        navigation.navigate("LenderHome");
         Alert.alert("Sign In Successful");
       })
       .catch((error) => {

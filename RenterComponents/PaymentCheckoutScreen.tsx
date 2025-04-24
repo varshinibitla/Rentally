@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TextInput, Button, Alert, ActivityIndicator, Image, ScrollView } from 'react-native';
 import { StackActions } from '@react-navigation/native';
 import { getDatabase, ref, set } from '@firebase/database';
+import { getAuth } from '@firebase/auth';
 
 const PaymentCheckoutScreen = ({ navigation, route }) => {
   // Get the listing passed as parameter
   const { listing } = route.params;
+  const auth = getAuth();
 
   // Payment fields
   const [cardHolderName, setCardHolderName] = useState('');
@@ -47,8 +49,9 @@ const PaymentCheckoutScreen = ({ navigation, route }) => {
 
       // Update listing status in Firebase to mark it as "bought"
       const db = getDatabase();
+      const user = auth.currentUser;
       const listingRef = ref(db, `listings/${listing.id}`);
-      await set(listingRef, { ...listing, status: 'bought' });
+      await set(listingRef, { ...listing, status: 'rented' , rentedBy: user.email});
 
            Alert.alert(
               'Success',
