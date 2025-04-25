@@ -13,6 +13,7 @@ interface Item {
   rentalDuration: number;
   price: number;
   image: string;
+  status: string;
   itemCategory?: string;
 }
 
