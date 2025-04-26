@@ -162,7 +162,6 @@ function SignIn({ navigation }) {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         navigation.navigate("LenderHome");
-        Alert.alert("Sign In Successful");
       })
       .catch((error) => {
         const errorMessage = error.message;

@@ -235,26 +235,7 @@ const ProfileSetting = () => {
 
       </View>
 
-      {/* Tabs */}
-      <View style={styles.tabsContainer}>
-        <TouchableOpacity 
-          style={[styles.tab, selectedTab === 0 && styles.activeTab]}
-          onPress={() => setSelectedTab(0)}
-        >
-          <Text style={[styles.tabText, selectedTab === 0 && styles.activeTabText]}>Listed Items</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity 
-          style={[styles.tab, selectedTab === 1 && styles.activeTab]}
-          onPress={() => {
-            setSelectedTab(1);
-            // Debug when switching to borrowed tab
-            debugBorrowedItems();
-          }}
-        >
-          <Text style={[styles.tabText, selectedTab === 1 && styles.activeTabText]}>Borrowed Items</Text>
-        </TouchableOpacity>
-      </View>
+      
 
       {/* Tabs */}
       <View style={styles.tabsContainer}>
