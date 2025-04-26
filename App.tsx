@@ -107,7 +107,7 @@ function SignUp({ navigation }) {
             profilePicture: defaultProfilePic, // Store the default profile picture
             joinDate: joinDate,
           });
-          Alert.alert("Sign Up Successful");
+          
           navigation.navigate("SignIn");
         } catch (error) {
           console.error("Error setting profile picture in Firebase:", error);
@@ -299,8 +299,8 @@ const styles = StyleSheet.create({
     },
     button: {
       marginVertical: 10,
-      width: "80%",
-      backgroundColor: "#000000",
+      width: "50%",
+      backgroundColor: '#007BFF',
       padding: 10,
       borderRadius: 20,
       alignItems: "center",
@@ -312,6 +312,8 @@ const styles = StyleSheet.create({
       fontSize: 18,
       fontWeight: "bold",
     },
+
+    
 });
 
 export default App;

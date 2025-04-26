@@ -19,6 +19,7 @@ type RootStackParamList = {
       price: number;
       rentalDuration: number;
       image: string;
+      status: string;
     };
   };
 };
@@ -27,7 +28,7 @@ interface ListingsProps {
   filteredData: RootStackParamList['ItemView']['listing'][];
 }
 
-const Listings: React.FC<ListingsProps> = ({ filteredData }) => {
+const Listings: React.FC<ListingsProps> = ({filteredData}) => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   return filteredData.length > 0 ? (
@@ -64,6 +65,11 @@ const Listings: React.FC<ListingsProps> = ({ filteredData }) => {
                   Max Duration: {item.rentalDuration}{' '}
                   {item.rentalDuration > 1 ? 'days' : 'day'}
                 </Text>
+                {item.status !== 'not_yet_rented' ? (
+                   <Text style={[styles.itemText, styles.rented]}>Rented</Text>
+                 ) : (
+                   <Text></Text>
+                 )}
               </View>
             </TouchableOpacity>
           );
@@ -108,6 +114,12 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginVertical: 20,
     color: 'black',
+  },
+  rented: {
+    alignSelf: 'center',
+    color: 'red',
+    fontWeight: 'bold',
+    fontSize: 20,
   },
 });
 

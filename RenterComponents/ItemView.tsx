@@ -79,7 +79,7 @@ const ItemView: React.FC<ListingItemProps> = ({ navigation, route }) => {
         </View>
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Rental Duration:</Text>
-          <Text style={styles.text}>{rentalDuration} days</Text>
+          <Text style={styles.text}>{rentalDuration} {rentalDuration > 1 ? 'days' : 'day'}</Text>
         </View>
         <View style={styles.infoContainer}>
           <Text style={styles.label}>Avg Rating: </Text>
