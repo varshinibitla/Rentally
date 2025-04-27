@@ -101,12 +101,14 @@ const EditListing = ({ route, navigation }) => {
           <Text style={styles.imagePlaceholder}>Select an Image</Text> // Correctly wrapped
         )}
       </TouchableOpacity>
+      <Text style={styles.label}>Item name</Text>
       <TextInput
         style={styles.input}
         value={itemName}
         onChangeText={setItemName}
         placeholder="Item Name"
       />
+      <Text style={styles.label}>Description</Text>
       <TextInput
         style={styles.input}
         value={description}
@@ -129,6 +131,7 @@ const EditListing = ({ route, navigation }) => {
           </Picker>
         </View>
       </View>
+      <Text style={styles.label}>Price</Text>
       <TextInput
         style={styles.input}
         value={price}
@@ -136,6 +139,7 @@ const EditListing = ({ route, navigation }) => {
         placeholder="Price per day"
         keyboardType="numeric"
       />
+      <Text style={styles.label}>Duration</Text>
       <TextInput
         style={styles.input}
         value={rentalDuration}
