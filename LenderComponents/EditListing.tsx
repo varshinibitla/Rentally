@@ -13,6 +13,7 @@ const EditListing = ({ route, navigation }) => {
   const [rentalDuration, setRentalDuration] = useState(listing.rentalDuration);
   const [image, setImage] = useState(listing.image); // Store the Base64 image
   const [itemCategory, setItemCategory] = useState(listing.itemCategory);
+  const [status, setStatus] = useState(listing.status);
 
   const auth = getAuth();
   const db = getDatabase();
@@ -32,7 +33,8 @@ const EditListing = ({ route, navigation }) => {
         rentalDuration,
         userEmail: listing.userEmail, // Keep the userEmail unchanged
         image, // Save the Base64 image
-        itemCategory
+        itemCategory,
+        status
       });
       Alert.alert('Success', 'Listing updated successfully!');
       navigation.goBack(); // Navigate to YourListings after updating
